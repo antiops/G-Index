@@ -2,24 +2,18 @@
 const init = () => {
   document.siteName = pageData.title
   document.body.className += `mdui-theme-primary-${main_color} mdui-theme-accent-${accent_color}`
-  var html = ''
-  html += `
-    <header class="mdui-appbar mdui-color-theme">`
-  if (dark) {
-    html += `
-        <div id="nav" class="mdui-toolbar mdui-container mdui-text-color-white-text">
-        </div>`
-  } else {
-    html += `
-        <div id="nav" class="mdui-toolbar mdui-container">
-        </div>`
-  }
-  html += `
+  const html = `
+    <header class="mdui-appbar mdui-color-theme">
+      <div id="nav" class="mdui-toolbar mdui-container mdui-text-color-white-text"></div>
     </header>
-        <div id="content" class="mdui-container"> 
-        </div>`;
-  //$('body').html(html);
+      <div id="content" class="mdui-container"></div>
+  `
   document.body.innerHTML = html
+}
+
+const data = {
+  model: window.MODEL,
+	
 }
 
 const Os = {
@@ -30,21 +24,19 @@ const Os = {
   isMobile: /Android|webOS|iPhone|iPad|iPod|iOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 };
 
-function getDocumentHeight() {
-  var D = document;
+const getDocumentHeight () => {
+  var D = document
   return Math.max(
     D.body.scrollHeight, D.documentElement.scrollHeight,
     D.body.offsetHeight, D.documentElement.offsetHeight,
     D.body.clientHeight, D.documentElement.clientHeight
-  );
+  )
 }
 
-function render(path) {
-  if (path.indexOf("?") > 0) {
-    path = path.substr(0, path.indexOf("?"));
-  }
-  title(path);
-  nav(path);
+const render (path) => {
+  if (path.indexOf('?') > 0) path = path.substr(0, path.indexOf('?'))
+  title(path)
+  nav(path)
   // .../0: This
   var reg = /\/\d+:$/g;
   if (window.MODEL.is_search_page) {
@@ -63,41 +55,34 @@ function render(path) {
       event_bound: false,
       // "Scroll to the bottom, loading more data" event lock
       loading_lock: false
-    };
-    list(path);
+    }
+    list(path)
   } else {
-    file(path);
+    file(path)
   }
 }
 
 
 // Rendering title
-function title(path) {
-  path = decodeURI(path);
-  var cur = window.current_drive_order || 0;
-  var drive_name = window.drive_names[cur];
-  path = path.replace(`/${cur}:`, '');
-  var model = window.MODEL;
-  if (model.is_search_page)
+const title = (path) => {
+  const cur = window.current_drive_order || 0;
+  const drive_name = window.drive_names[cur];
+  const path = decodeURI(path).replace(`/${cur}:`, '');
+  const model = window.MODEL;
+  if (model.is_search_page) {
     document.querySelector('.title').innerText = `${document.siteName} - ${drive_name} - Search Result for ${model.q}`
-  else
+  } else {
     document.querySelector('.title').innerText = `${document.siteName} - ${drive_name} - ${path}`
+  }
 }
 
 // Render the navigation bar
-function nav(path) {
-  var model = window.MODEL;
-  var html = "";
+const nav = (path) => {
+  var model = window.MODEL
+  var html = ''
   var cur = window.current_drive_order || 0;
   html += `<a href="/${cur}:/" class="mdui-typo-headline folder">${document.siteName}</a>`;
   var names = window.drive_names;
-  /*html += `<button class="mdui-btn mdui-btn-raised" mdui-menu="{target: '#drive-names'}"><i class="mdui-icon mdui-icon-left material-icons">share</i> ${names[cur]}</button>`;
-  html += `<ul class="mdui-menu" id="drive-names" style="transform-origin: 0px 0px; position: fixed;">`;
-  names.forEach((name, idx) => {
-      html += `<li class="mdui-menu-item ${(idx === cur) ? 'mdui-list-item-active' : ''} "><a href="/${idx}:/" class="mdui-ripple">${name}</a></li>`;
-  });
-  html += `</ul>`;*/
-
   // change into select
   html += `<select class="mdui-select" onchange="window.location.href=this.value" mdui-select style="overflow:visible;padding-left:8px;padding-right:8px">`;
   names.forEach((name, idx) => {
@@ -737,6 +722,7 @@ function file_code(path) {
     });
   });
 }
+
 function copyToClipboard(str) {
   const $temp = $("<input>");
   $("body").append($temp);
@@ -745,66 +731,18 @@ function copyToClipboard(str) {
   $temp.remove();
 }
 // Document display video |mp4|webm|avi|
-function file_video(path) {
- const url = window.location.origin + path;
-  let player_items = [
-    {
-      text: 'MXPlayer(Free)',
-      href: `intent:${url}#Intent;package=com.mxtech.videoplayer.ad;S.title=${path};end`,
-    },
-    {
-      text: 'MXPlayer(Pro)',
-      href: `intent:${url}#Intent;package=com.mxtech.videoplayer.pro;S.title=${path};end`,
-    },
-    {
-      text: 'nPlayer',
-      href: `nplayer-${url}`,
-    },
-    {
-      text: 'VLC',
-      href: `vlc://${url}`,
-    },
-    {
-      text: 'PotPlayer',
-      href: `potplayer://${url}`
-    }
-  ]
-    .map(it => `<li class="mdui-menu-item"><a href="${it.href}" class="mdui-ripple">${it.text}</a></li>`)
-    .join('');
-  player_items += `<li class="mdui-divider"></li>
-                   <li class="mdui-menu-item"><a id="copy-link" class="mdui-ripple">Copy Link</a></li>`;
-  const playBtn = `
-      <button class="mdui-btn mdui-ripple mdui-color-theme-accent" mdui-menu="{target:'#player-items'}">
-        <i class="mdui-icon material-icons">&#xe039;</i>Play From External Player<i class="mdui-icon material-icons">&#xe5cf;</i>
-      </button>
-      
-      <ul class="mdui-menu" id="player-items">${player_items}</ul>`;
-
+const file_video = (path) => {
+  const url = window.location.origin + path
   const content = `
-  
 <div class="mdui-container-fluid">
 	<br>
 	<video class="mdui-video-fluid mdui-center" preload controls>
 	  <source src="${url}" type="video/mp4">
 	</video>
-	<br>${playBtn}
-	<!-- Fixed label -->
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">Download Link</label>
-	  <input class="mdui-textfield-input" type="text" value="${url}"/>
-	</div>
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">HTML Refrence Adress</label>
-	  <textarea class="mdui-textfield-input"><video><source src="${url}" type="video/mp4"></video></textarea>
-	</div>
 </div>
-<a href="${url}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
-	`;
-  $('#content').html(content);
-  $('#copy-link').on('click', () => {
-    copyToClipboard(url);
-    mdui.snackbar('Copied To Clipboard!');
-  });
+<a href="${url}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent" download><i class="mdui-icon material-icons">file_download</i></a>
+	`
+  document.querySelector('#content').innerHTML = content
 }
 
 // File display Audio |mp3|flac|m4a|wav|ogg|
@@ -1002,26 +940,12 @@ function markdown(el, data) {
 
 // Listen for fallback events
 window.onpopstate = function () {
-  var path = window.location.pathname;
-  render(path);
+  const path = window.location.pathname;
+  render(path)
 }
 
-
-$(function () {
-  init();
-  var path = window.location.pathname;
-  /*$("body").on("click", '.folder', function () {
-      var url = $(this).attr('href');
-      history.pushState(null, null, url);
-      render(url);
-      return false;
-  });
-  $("body").on("click", '.view', function () {
-      var url = $(this).attr('href');
-      history.pushState(null, null, url);
-      render(url);
-      return false;
-  });*/
-
-  render(path);
-});
+window.onload = () => {
+  const path = window.location.pathname
+  init()
+  render(path)
+}
