@@ -1,32 +1,25 @@
-// Load the necessary static in the head
-document.write('<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">');
-// markdown Standby
-document.write('<script src="//cdn.jsdelivr.net/npm/markdown-it@10.0.0/dist/markdown-it.min.js"></script>');
-document.write('<style>.mdui-appbar .mdui-toolbar{height:56px;font-size:1pc}.mdui-toolbar>*{padding:0 6px;margin:0 2px}.mdui-toolbar>i{opacity:.5}.mdui-toolbar>.mdui-typo-headline{padding:0 1pc 0 0}.mdui-toolbar>i{padding:0}.mdui-toolbar>a:hover,a.active,a.mdui-typo-headline{opacity:1}.mdui-container{max-width:980px}.mdui-list-item{transition:none}.mdui-list>.th{background-color:initial}.mdui-list-item>a{width:100%;line-height:3pc}.mdui-list-item{margin:2px 0;padding:0}.mdui-toolbar>a:last-child{opacity:1}@media screen and (max-width:980px){.mdui-list-item .mdui-col-sm-3{display:none}.mdui-container{width:100%!important;margin:0}.mdui-toolbar>.mdui-typo-headline,.mdui-toolbar>a:last-child,.mdui-toolbar>i:first-child{display:block}}</style>');
-
-if(dark){document.write('<style>* {box-sizing: border-box}body{color:rgba(255,255,255,.87);background-color:#333232}.mdui-theme-primary-'+main_color+' .mdui-color-theme{background-color:#232427!important}</style>');}
-
 // Initialize the page and load the necessary resources
-function init(){
-    document.siteName = $('title').html();
-    $('body').addClass("mdui-theme-primary-"+main_color+" mdui-theme-accent-"+accent_color);
-    var html = "";
-    html += `
+const init = () => {
+  document.siteName = pageData.title
+  document.body.className += `mdui-theme-primary-${main_color} mdui-theme-accent-${accent_color}`
+  var html = ''
+  html += `
     <header class="mdui-appbar mdui-color-theme">`
-    if(dark){
-        html += `
+  if (dark) {
+    html += `
         <div id="nav" class="mdui-toolbar mdui-container mdui-text-color-white-text">
-        </div>`;
-    }else{
-        html += `
+        </div>`
+  } else {
+    html += `
         <div id="nav" class="mdui-toolbar mdui-container">
-        </div>`;
-    }
-html += `
+        </div>`
+  }
+  html += `
     </header>
         <div id="content" class="mdui-container"> 
         </div>`;
-    $('body').html(html);
+  //$('body').html(html);
+  document.body.innerHTML = html
 }
 
 const Os = {
@@ -84,12 +77,11 @@ function title(path) {
   var cur = window.current_drive_order || 0;
   var drive_name = window.drive_names[cur];
   path = path.replace(`/${cur}:`, '');
-  // $('title').html(document.siteName + ' - ' + path);
   var model = window.MODEL;
   if (model.is_search_page)
-    $('title').html(`${document.siteName} - ${drive_name} - Search Result for ${model.q} `);
+    document.querySelector('.title').innerText = `${document.siteName} - ${drive_name} - Search Result for ${model.q}`
   else
-    $('title').html(`${document.siteName} - ${drive_name} - ${path}`);
+    document.querySelector('.title').innerText = `${document.siteName} - ${drive_name} - ${path}`
 }
 
 // Render the navigation bar
@@ -148,7 +140,8 @@ function nav(path) {
     html += search_bar;
   }
 
-  $('#nav').html(html);
+  //$('#nav').html(html);
+  document.querySelector('#nav').innerHTML = html
   mdui.mutation();
   mdui.updateTextFields();
 }
@@ -226,12 +219,14 @@ function list(path) {
 	 </div>
 	 <div id="readme_md" class="mdui-typo" style="display:none; padding: 20px 0;"></div>
 	`;
-  $('#content').html(content);
+  //$('#content').html(content);
+  document.querySelector('#content').innerHTML = content
 
-  var password = localStorage.getItem('password' + path);
-  $('#list').html(`<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>`);
-  $('#readme_md').hide().html('');
-  $('#head_md').hide().html('');
+  const password = localStorage.getItem('password' + path)
+  //$('#list').html(`<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>`);
+  document.querySelector('#list').innerHTML = '<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>'
+  document.querySelector('#readme_md').style.display = 'none'
+  document.querySelector('#head_md').style.display = 'none'
 
   /**
    * Callback after successful data return from column directory request
@@ -299,24 +294,22 @@ function list(path) {
     }
 
     // After loading successfully and rendering new data successfully, release the loading lock so that you can continue to process the "scroll to bottom" event
-    if (window.scroll_status.loading_lock === true) {
-      window.scroll_status.loading_lock = false
-    }
+    if (window.scroll_status.loading_lock === true) window.scroll_status.loading_lock = false
   }
 
   // Start requesting data from page 1
-  requestListPath(path, {password: password},
+  requestListPath(path, { password: password },
     successResultCallback,
     function (path) {
       $('#spinner').remove();
-      var pass = prompt("Access Denied, please enter the password", "");
+      var pass = prompt('Access Denied, please enter the password', '')
       localStorage.setItem('password' + path, pass);
-      if (pass != null && pass != "") {
-        list(path);
+      if (pass != null && pass != '') {
+        list(path)
       } else {
-        history.go(-1);
+        history.go(-1)
       }
-    });
+    })
 }
 
 /**
