@@ -24,7 +24,7 @@ const Os = {
   isMobile: /Android|webOS|iPhone|iPad|iPod|iOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 };
 
-const getDocumentHeight () => {
+const getDocumentHeight = () => {
   var D = document
   return Math.max(
     D.body.scrollHeight, D.documentElement.scrollHeight,
@@ -33,7 +33,7 @@ const getDocumentHeight () => {
   )
 }
 
-const render (path) => {
+const render = (path) => {
   if (path.indexOf('?') > 0) path = path.substr(0, path.indexOf('?'))
   title(path)
   nav(path)
